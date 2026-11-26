@@ -9,6 +9,102 @@ list_entry = db.Table(
     db.Column("menuitem_id", db.Integer, db.ForeignKey("menuitems.id"), primary_key=True)
 )
 
+class DiningHall(db.Model):
+    """
+    DiningHall model (Table)
+    Has a one-to-many relationship with Menu
+    """
+
+    __tablename__ = "dininghalls"
+    id = db.Column(db.Integer, primary_key = True, autoincrement=True)
+    eatery_id = db.Column(db.Integer) #To be finished once Menu is done
+    name = db.Column(db.String, nullable = False)
+    location = db.Column(db.String, nullable = False)
+    menus = db.relationship("Menu", back_populates="dininghall", cascade="all, delete-orphan")
+
+    def __init__(self, **kwargs):
+        """
+        Initializes DiningHall Object
+        """
+        self.name = kwargs.get("name", "")
+        self.location = kwargs.get("location", "")
+        self. eatery_id = kwargs.get("eatery_id", 0)
+
+    def serialize(self):
+        """
+        Prepare object to be sent to user
+        """
+
+        return {
+            "id": self.id,
+            "name": self.name,
+            "location": self.location,
+            "menus": [m.simple_serialize() for m in self.menus],
+        }
+
+    def simple_serialize(self):
+        return {
+            "id": self.id,
+            "eatery_id": self.eatery_id,
+            "name": self.name,
+            "location": self.location,
+        }
+
+class Menu(db.Model):
+    """
+    Menu model (Table)
+    Has a one-to-many relationship with Dining Hall
+    Has a one-to-many relationship with Menu Item
+    """
+    
+    __tablename__ = "menus"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    hall_id = db.Column(db.Integer, db.ForeignKey("dininghalls.id"), nullable = False)
+    #What purpose is service date and meal_period?
+    service_date = db.Column(db.String, nullable = False)
+    meal_period = db.Column(db.String, nullable = False)
+    starts_at = db.Column(db.String, nullable = False)
+    ends_at = db.Column(db.String, nullable = False)
+
+    menuitems = db.relationship("Menuitem", back_populates="menu", cascade="all, delete-orphan")
+    dininghall = db.relationship("DiningHall", back_populates="menus")
+
+    def __init__(self, **kwargs):
+        """
+        Initializes a Menu Object
+        """
+        self.hall_id = kwargs.get("hall_id", 0)
+        self.service_date = kwargs.get("service_date", "")
+        self.meal_period = kwargs.get("meal_period", "")
+        self.starts_at = kwargs.get("starts_at", "")
+        self.ends_at = kwargs.get("ends_at", "")
+
+    def serialize(self):
+        """
+        Prepares object to be sent to user
+        """
+        return {
+
+            "id": self.id,
+            "service_date": self.service_date,
+            "meal_period": self.meal_period,
+            "starts_at": self.starts_at,
+            "ends_at": self.ends_at,
+            "menuitems": [mi.simple_serialize() for mi in self.menuitems],
+            "dininghall": self.dininghall.simple_serialize(),
+        }
+
+    def simple_serialize(self):
+        return {
+            "id": self.id,
+            "hall_id": self.hall_id,
+            "service_date": self.service_date,
+            "meal_period": self.meal_period,
+            "starts_at": self.starts_at,
+            "ends_at": self.ends_at,
+        }
+        
+
 class Mealplan(db.Model):
     """
     Mealplan model (Table)
@@ -54,9 +150,10 @@ class Menuitem(db.Model):
 
     __tablename__ = "menuitems"
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    menu_id = db.Column(db.Integer) #Need to implement Menu first 
+    menu_id = db.Column(db.Integer, db.ForeignKey("menus.id"), nullable = False) #Need to implement Menu first 
     dish_id = db.Column(db.Integer, db.ForeignKey("dishes.id"), nullable = False)
-    dishes = db.relationship("Dish", back_populates="menuitems")
+    menu = db.relationship("Menu", back_populates="menuitems")
+    dish = db.relationship("Dish", back_populates="menuitems")
     #Unclear on Station parameter. String?
     mealplans = db.relationship("Mealplan",secondary=list_entry, back_populates="menuitems")
 
@@ -75,7 +172,7 @@ class Menuitem(db.Model):
         return {
             "id": self.id,
             "menu_id": self.menu_id,
-            "dishes": self.dishes.simple_serialize(),
+            "dish": self.dish.simple_serialize(),
             "mealplans": [a.simple_serialize() for a in self.mealplans],
         }
 
@@ -102,8 +199,7 @@ class Dish(db.Model):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable = False)
     serving_description = db.Column(db.String, nullable = False)
-    menuitems = db.relationship("Menuitem", back_populates="dishes", cascade="all, delete-orphan")
-    
+    menuitems = db.relationship("Menuitem", back_populates="dish", cascade="all, delete-orphan")    
     # Nutrition facts per serving
     calories = db.Column(db.Float, nullable = False)
     protein = db.Column(db.Float, nullable = False)
