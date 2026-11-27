@@ -1,9 +1,13 @@
 import json
+from pathlib import Path
+
 from flask import Flask, request
+
+import api_v1
 from db import db, Dish, Menuitem, Mealplan
 from seed import seed_database
 
-app = Flask(__name__)
+app = Flask(__name__, instance_path=str(Path(__file__).resolve().parent / "instance"))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///campusmacros.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -117,5 +121,35 @@ def delete_mealplan(plan_id):
     return success_response({"message": "Meal plan deleted successfully"})
 
 
+@app.route("/v1/halls", methods=["GET"])
+def get_dining_halls():
+    return api_v1.halls()
+
+
+@app.route("/v1/halls/<hall_id>/menu", methods=["GET"])
+def get_hall_menu(hall_id):
+    return api_v1.hall_menu(hall_id)
+
+
+@app.route("/v1/meal-plans", methods=["GET"])
+def get_saved_plans():
+    return api_v1.meal_plans()
+
+
+@app.route("/v1/meal-plans/<int:plan_id>", methods=["GET"])
+def get_saved_plan(plan_id):
+    return api_v1.meal_plan(plan_id)
+
+
+@app.route("/v1/meal-plans", methods=["POST"])
+def save_meal_plan():
+    return api_v1.save_or_generate_plan()
+
+
+@app.route("/v1/meal-plans/<int:plan_id>", methods=["DELETE"])
+def delete_saved_plan(plan_id):
+    return delete_mealplan(plan_id)
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8000)
