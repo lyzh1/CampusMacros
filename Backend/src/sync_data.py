@@ -13,21 +13,27 @@ from nutrition import enrich_nutrition
 
 
 def main():
-    usage = "Usage: python sync_data.py menus | nutrition [limit]"
+    usage = "Usage: python sync_data.py menus | nutrition [limit] [--retry-unmatched]"
     if len(sys.argv) < 2 or sys.argv[1] not in ("menus", "nutrition"):
         raise SystemExit(usage)
     command = sys.argv[1]
-    if len(sys.argv) > 3 or (command == "menus" and len(sys.argv) != 2):
+    arguments = sys.argv[2:]
+    if command == "menus" and arguments:
         raise SystemExit(usage)
 
     if command == "nutrition":
+        retry_unmatched = "--retry-unmatched" in arguments
+        if retry_unmatched:
+            arguments.remove("--retry-unmatched")
+        if len(arguments) > 1:
+            raise SystemExit(usage)
         key = os.environ.get("USDA_API_KEY")
         if not key:
             raise SystemExit("Set USDA_API_KEY to look up nutrition.")
         limit = 25
-        if len(sys.argv) == 3:
+        if arguments:
             try:
-                limit = int(sys.argv[2])
+                limit = int(arguments[0])
             except ValueError:
                 raise SystemExit("Use a limit between 1 and 500.") from None
         if not 1 <= limit <= 500:
@@ -44,7 +50,7 @@ def main():
                 result = sync_menus()
                 print(f"Imported {result['halls']} dining halls and {result['services']} meal services.")
             else:
-                result = enrich_nutrition(key, limit)
+                result = enrich_nutrition(key, limit, retry_unmatched=retry_unmatched)
                 print(f"Checked {result['checked']} dishes and matched {result['matched']}.")
         except (requests.RequestException, ValueError, KeyError, TypeError):
             db.session.rollback()
