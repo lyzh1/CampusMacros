@@ -11,7 +11,7 @@ list_entry = db.Table(
 
 
 class DiningHall(db.Model):
-    """A Cornell dining hall with its identifier from Eatery."""
+    """Cornell dining hall with Eatery identifier."""
 
     __tablename__ = "dining_halls"
     id = db.Column(db.Integer, primary_key=True)
@@ -77,7 +77,7 @@ class Mealplan(db.Model):
         }
 
     def simple_serialize(self):
-        return {"id": self.id, "name": self.name, "description": self.description, }
+        return {"id": self.id, "name": self.name, "description": self.description,}
 
 class Menuitem(db.Model):
     """
@@ -88,7 +88,6 @@ class Menuitem(db.Model):
 
     __tablename__ = "menuitems"
     id = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    # Older catalog items may be unassigned until they are placed on a menu.
     menu_id = db.Column(db.Integer, db.ForeignKey("menus.id"))
     dish_id = db.Column(db.Integer, db.ForeignKey("dishes.id"), nullable = False)
     station = db.Column(db.String)
