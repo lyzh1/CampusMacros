@@ -11,6 +11,45 @@
     {"name": "Black Beans", "description": "Seasoned black beans, simmered.", "serving_description": "1 cup", "calories": 220, "protein": 15, "carbs": 40, "fat": 1},
     {"name": "Baked Sweet Potato", "description": "Whole sweet potato, baked until tender.", "serving_description": "1 medium", "calories": 110, "protein": 2, "carbs": 26, "fat": 0}
   ],
+  "dining_halls": [
+    {"eatery_id": "sample-morrison", "name": "Morrison", "location": "North Campus"}
+  ],
+  "menus": [
+    {
+      "hall_eatery_id": "sample-morrison",
+      "service_date": "2026-11-23",
+      "meal_period": "breakfast",
+      "items": [
+        {"dish": "Oatmeal", "station": "Hot Line"},
+        {"dish": "Scrambled Eggs", "station": "Hot Line"},
+        {"dish": "Greek Yogurt", "station": "Cold Bar"}
+      ]
+    },
+    {
+      "hall_eatery_id": "sample-morrison",
+      "service_date": "2026-11-23",
+      "meal_period": "lunch",
+      "items": [
+        {"dish": "Grilled Chicken Breast", "station": "Grill"},
+        {"dish": "Beef Chili", "station": "Soup"},
+        {"dish": "Brown Rice", "station": "Sides"},
+        {"dish": "Garden Salad", "station": "Salad Bar"},
+        {"dish": "Greek Yogurt", "station": "Cold Bar"},
+        {"dish": "Black Beans", "station": "Sides"},
+        {"dish": "Baked Sweet Potato", "station": "Sides"}
+      ]
+    },
+    {
+      "hall_eatery_id": "sample-morrison",
+      "service_date": "2026-11-23",
+      "meal_period": "dinner",
+      "items": [
+        {"dish": "Grilled Chicken Breast", "station": "Grill"},
+        {"dish": "Brown Rice", "station": "Sides"},
+        {"dish": "Garden Salad", "station": "Salad Bar"}
+      ]
+    }
+  ],
   "mealplans": [
     {
       "name": "High Protein",
